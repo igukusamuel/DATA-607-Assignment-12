@@ -1,0 +1,169 @@
+---
+title: "Assignment 12"
+author: "Samuel I Kigamba"
+date: "November 25, 2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Instructions
+
+For this assignment, you should take information from a relational database and migrate it to a NoSQL database of your own choosing.
+
+For the relational database, you might use the flights database, the tb database, the "data skills" database your team created for Project 3, or another database of your own choosing or creation.
+
+For the NoSQL database, you may use MongoDB (which we introduced in week 7), Neo4j, or another NoSQL database of your choosing.
+
+Your migration process needs to be reproducible. R code is encouraged, but not required. You should also briefly describe the advantages and disadvantages of storing the data in a relational database vs. your NoSQL database.
+
+
+```{r install_packages_RMySQL, eval=TRUE}
+
+#install.packages("RMySQL")
+#install.packages('ggmap')
+
+```
+
+```{r load_library_RMySQL, eval=TRUE}
+
+library(RMySQL)
+library(ggplot2)
+library(dplyr)
+library(dbplyr)
+library(knitr)
+library(maps)
+library(ggmap)
+library(mongolite)
+library(lubridate)
+library(gridExtra)
+
+```
+
+Connecting to flights database through RMysql
+
+```{r, message=FALSE, warning=FALSE, print=FALSE}
+
+password = 'Sammiggy2030^'
+
+
+```
+
+
+```{r, eval=TRUE}
+#connect RMySQL flights database 
+
+mydb = dbConnect(MySQL(), user='root', password = password, dbname='flights', host='localhost') #Use the flights Schema
+
+```
+
+```{r}
+
+dbSendQuery(mydb,'USE flights;')
+
+```
+
+There are five tables under the flights database and they include airlines, airports, flights, planes, weather.
+
+```{r}
+
+dbListTables(mydb)
+
+```
+## [1] "airlines" "airports" "flights"  "planes"   "weather"
+
+Load the database into R
+
+```{r}
+
+flightdetails <- dbGetQuery(mydb, "SELECT * FROM flights")
+planes <- dbGetQuery(mydb, "SELECT * FROM planes")
+weather <- dbGetQuery(mydb, "SELECT * FROM weather")
+airlines <- dbGetQuery(mydb, "SELECT * FROM airlines")
+airports <- dbGetQuery(mydb, "SELECT * FROM airports")
+
+```
+
+```{r}
+
+head(airports, 2)
+head(airlines, 2)
+head(flightdetails, 2)
+head(planes, 2)
+head(weather, 2)
+```
+
+
+```{r}
+#Close the connection to MySQL.
+#dbDisconnect(mydb)
+
+```
+
+Loading the data into my non relational (nonsql) database - MongoDB
+
+```{r}
+library(devtools)
+install_github(repo = "mongosoup/rmongodb")
+
+library(rmongodb)
+# connect to MongoDB
+mongo = mongo.create(host = "localhost")
+mongo.is.connected(mongo)
+
+library(mongolite)
+
+```
+
+Create collections for all the tables and load the various tables into their respective collection
+
+
+```{r}
+
+flights <- mongo(collection = "Airlines", db = "flights")
+flights$insert(airlines)
+
+flights <- mongo(collection = "Airports", db = "flights")
+flights$insert(airports)
+
+flights <- mongo(collection = "Flightdetails", db = "flights")
+flights$insert(flightdetails)
+
+flights <- mongo(collection = "Planes", db = "flights")
+flights$insert(planes)
+
+flights <- mongo(collection = "Weather", db = "flights")
+flights$insert(weather)
+
+```
+
+#Querying the data
+
+```{r}
+flights$count()
+```
+
+Relational vs Non relational
+Reasons to use a Relational database
+
+The main advantages of non relational database vs relational databases are:
+
+a) The use of cloud computing and storage.
+b) The rapid technological developments and the ease of evolution.
+c) Large storage spaces for unstructured data.
+
+The greatest disadvantages include:
+
+a) non standardization.
+b) non consistent query language unlike relational databases.
+
+
+
+
+
+
