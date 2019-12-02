@@ -27,10 +27,11 @@ Your migration process needs to be reproducible. R code is encouraged, but not r
 
 #install.packages("RMySQL")
 #install.packages('ggmap')
+#install_github(repo = "mongosoup/rmongodb")
 
 ```
 
-```{r load_library_RMySQL, eval=TRUE}
+```{r load_library_RMySQL, eval=TRUE, message=FALSE, warning=FALSE}
 
 library(RMySQL)
 library(ggplot2)
@@ -39,15 +40,18 @@ library(dbplyr)
 library(knitr)
 library(maps)
 library(ggmap)
-library(mongolite)
 library(lubridate)
 library(gridExtra)
+library(devtools)
+library(rmongodb)
+library(mongolite)
 
 ```
 
+
 Connecting to flights database through RMysql
 
-```{r, message=FALSE, warning=FALSE, print=FALSE}
+```{r, message=FALSE, warning=FALSE, include=FALSE}
 
 password = 'Sammiggy2030^'
 
@@ -75,7 +79,6 @@ There are five tables under the flights database and they include airlines, airp
 dbListTables(mydb)
 
 ```
-## [1] "airlines" "airports" "flights"  "planes"   "weather"
 
 Load the database into R
 
@@ -108,15 +111,11 @@ head(weather, 2)
 Loading the data into my non relational (nonsql) database - MongoDB
 
 ```{r}
-library(devtools)
-install_github(repo = "mongosoup/rmongodb")
 
-library(rmongodb)
 # connect to MongoDB
 mongo = mongo.create(host = "localhost")
 mongo.is.connected(mongo)
 
-library(mongolite)
 
 ```
 
@@ -149,8 +148,7 @@ flights$count()
 ```
 
 Relational vs Non relational
-Reasons to use a Relational database
-
+Reasons to use a Relational database:
 The main advantages of non relational database vs relational databases are:
 
 a) The use of cloud computing and storage.

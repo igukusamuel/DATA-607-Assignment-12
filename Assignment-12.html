@@ -192,65 +192,29 @@ summary {
 <p>For the NoSQL database, you may use MongoDB (which we introduced in week 7), Neo4j, or another NoSQL database of your choosing.</p>
 <p>Your migration process needs to be reproducible. R code is encouraged, but not required. You should also briefly describe the advantages and disadvantages of storing the data in a relational database vs. your NoSQL database.</p>
 <pre class="r"><code>#install.packages(&quot;RMySQL&quot;)
-#install.packages('ggmap')</code></pre>
-<pre class="r"><code>library(RMySQL)</code></pre>
-<pre><code>## Warning: package 'RMySQL' was built under R version 3.5.3</code></pre>
-<pre><code>## Loading required package: DBI</code></pre>
-<pre><code>## Warning: package 'DBI' was built under R version 3.5.3</code></pre>
-<pre class="r"><code>library(ggplot2)</code></pre>
-<pre><code>## Warning: package 'ggplot2' was built under R version 3.5.3</code></pre>
-<pre class="r"><code>library(dplyr)</code></pre>
-<pre><code>## Warning: package 'dplyr' was built under R version 3.5.3</code></pre>
-<pre><code>## 
-## Attaching package: 'dplyr'</code></pre>
-<pre><code>## The following objects are masked from 'package:stats':
-## 
-##     filter, lag</code></pre>
-<pre><code>## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union</code></pre>
-<pre class="r"><code>library(dbplyr)</code></pre>
-<pre><code>## Warning: package 'dbplyr' was built under R version 3.5.3</code></pre>
-<pre><code>## 
-## Attaching package: 'dbplyr'</code></pre>
-<pre><code>## The following objects are masked from 'package:dplyr':
-## 
-##     ident, sql</code></pre>
-<pre class="r"><code>library(knitr)</code></pre>
-<pre><code>## Warning: package 'knitr' was built under R version 3.5.3</code></pre>
-<pre class="r"><code>library(maps)</code></pre>
-<pre><code>## Warning: package 'maps' was built under R version 3.5.3</code></pre>
-<pre class="r"><code>library(ggmap)</code></pre>
-<pre><code>## Warning: package 'ggmap' was built under R version 3.5.3</code></pre>
-<pre><code>## Google's Terms of Service: https://cloud.google.com/maps-platform/terms/.</code></pre>
-<pre><code>## Please cite ggmap if you use it! See citation(&quot;ggmap&quot;) for details.</code></pre>
-<pre class="r"><code>library(mongolite)</code></pre>
-<pre><code>## Warning: package 'mongolite' was built under R version 3.5.3</code></pre>
-<pre class="r"><code>library(lubridate)</code></pre>
-<pre><code>## 
-## Attaching package: 'lubridate'</code></pre>
-<pre><code>## The following object is masked from 'package:base':
-## 
-##     date</code></pre>
-<pre class="r"><code>library(gridExtra)</code></pre>
-<pre><code>## Warning: package 'gridExtra' was built under R version 3.5.3</code></pre>
-<pre><code>## 
-## Attaching package: 'gridExtra'</code></pre>
-<pre><code>## The following object is masked from 'package:dplyr':
-## 
-##     combine</code></pre>
+#install.packages('ggmap')
+#install_github(repo = &quot;mongosoup/rmongodb&quot;)</code></pre>
+<pre class="r"><code>library(RMySQL)
+library(ggplot2)
+library(dplyr)
+library(dbplyr)
+library(knitr)
+library(maps)
+library(ggmap)
+library(lubridate)
+library(gridExtra)
+library(devtools)
+library(rmongodb)
+library(mongolite)</code></pre>
 <p>Connecting to flights database through RMysql</p>
-<pre class="r"><code>password = 'Sammiggy2030^'</code></pre>
 <pre class="r"><code>#connect RMySQL flights database 
 
 mydb = dbConnect(MySQL(), user='root', password = password, dbname='flights', host='localhost') #Use the flights Schema</code></pre>
 <pre class="r"><code>dbSendQuery(mydb,'USE flights;')</code></pre>
-<pre><code>## &lt;MySQLResult:516,0,0&gt;</code></pre>
+<pre><code>## &lt;MySQLResult:443949160,0,0&gt;</code></pre>
 <p>There are five tables under the flights database and they include airlines, airports, flights, planes, weather.</p>
 <pre class="r"><code>dbListTables(mydb)</code></pre>
 <pre><code>## [1] &quot;airlines&quot; &quot;airports&quot; &quot;flights&quot;  &quot;planes&quot;   &quot;weather&quot;</code></pre>
-<div id="airlines-airports-flights-planes-weather" class="section level2">
-<h2>[1] “airlines” “airports” “flights” “planes” “weather”</h2>
 <p>Load the database into R</p>
 <pre class="r"><code>flightdetails &lt;- dbGetQuery(mydb, &quot;SELECT * FROM flights&quot;)
 planes &lt;- dbGetQuery(mydb, &quot;SELECT * FROM planes&quot;)
@@ -289,19 +253,10 @@ airports &lt;- dbGetQuery(mydb, &quot;SELECT * FROM airports&quot;)</code></pre>
 <pre class="r"><code>#Close the connection to MySQL.
 #dbDisconnect(mydb)</code></pre>
 <p>Loading the data into my non relational (nonsql) database - MongoDB</p>
-<pre class="r"><code>library(devtools)</code></pre>
-<pre><code>## Warning: package 'devtools' was built under R version 3.5.3</code></pre>
-<pre><code>## Loading required package: usethis</code></pre>
-<pre><code>## Warning: package 'usethis' was built under R version 3.5.3</code></pre>
-<pre class="r"><code>install_github(repo = &quot;mongosoup/rmongodb&quot;)</code></pre>
-<pre><code>## Skipping install of 'rmongodb' from a github remote, the SHA1 (8eb2bca2) has not changed since last install.
-##   Use `force = TRUE` to force installation</code></pre>
-<pre class="r"><code>library(rmongodb)
-# connect to MongoDB
+<pre class="r"><code># connect to MongoDB
 mongo = mongo.create(host = &quot;localhost&quot;)
 mongo.is.connected(mongo)</code></pre>
 <pre><code>## [1] TRUE</code></pre>
-<pre class="r"><code>library(mongolite)</code></pre>
 <p>Create collections for all the tables and load the various tables into their respective collection</p>
 <pre class="r"><code>flights &lt;- mongo(collection = &quot;Airlines&quot;, db = &quot;flights&quot;)
 flights$insert(airlines)</code></pre>
@@ -344,13 +299,11 @@ flights$insert(weather)</code></pre>
 ##  $ nUpserted  : num 0
 ##  $ writeErrors: list()</code></pre>
 </div>
-</div>
 <div id="querying-the-data" class="section level1">
 <h1>Querying the data</h1>
 <pre class="r"><code>flights$count()</code></pre>
-<pre><code>## [1] 34876</code></pre>
-<p>Relational vs Non relational Reasons to use a Relational database</p>
-<p>The main advantages of non relational database vs relational databases are:</p>
+<pre><code>## [1] 95909</code></pre>
+<p>Relational vs Non relational Reasons to use a Relational database: The main advantages of non relational database vs relational databases are:</p>
 <ol style="list-style-type: lower-alpha">
 <li>The use of cloud computing and storage.</li>
 <li>The rapid technological developments and the ease of evolution.</li>
